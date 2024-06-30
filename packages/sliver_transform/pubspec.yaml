@@ -1,0 +1,16 @@
+name: sliver_transform
+description: Transform widget that works on slivers, forked from Flutter's box Transform.
+version: 0.0.3
+homepage: https://github.com/volskaya/stasha.flutter/tree/main/packages/sliver_transform
+
+environment:
+  sdk: ">=3.2.6 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+
+flutter:

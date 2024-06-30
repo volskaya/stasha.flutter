@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+target_package=$1
+target_bump_type=$2 # 'patch' | 'minor' | 'major'
+target_package_path="$GITHUB_WORKSPACE/packages/$target_package"
+target_changelog_path="$target_package_path/CHANGELOG.md"
+
+echo "Target package: $target_package."
+echo "Target bump type: $target_bump_type."
+
+if [[ ! -d "$target_package_path" ]]; then
+  echo "Unsupported package path: $target_package_path."
+  exit 1
+fi
+
+if [[ !("$target_bump_type" == 'patch' || "$target_bump_type" == 'minor' || "$target_bump_type" == 'major') ]]; then
+  echo "Unsupported target bump type: $target_bump_type."
+  exit 1
+fi
+
+# 1. Bump the version in pubspec.
+cd $target_package_path
+
+cider bump patch
+
+version="$(cider version)"
+tag="$target_package-v$version"
+message="chore($target_package): bump v$version"
+
+cd $GITHUB_WORKSPACE
+
+# 2. Generate the changelog and remove the monorepo name.
+git cliff \
+  --unreleased \
+  --tag "$tag" \
+  --include-path "packages/$target_package/**/*" \
+  --strip all \
+  --prepend "$target_changelog_path"
+
+# 3. Export variables for use in github actions.
+echo "OUR_COMMIT_MESSAGE=$message" >>$GITHUB_ENV
+echo "OUR_TAGGING_MESSAGE=$tag" >>$GITHUB_ENV
+
+echo "Exported OUR_COMMIT_MESSAGE $message"
+echo "Exported OUR_TAGGING_MESSAGE $tag"

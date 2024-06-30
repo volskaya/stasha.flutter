@@ -1,0 +1,41 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      - "*-v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  publish:
+    permissions:
+      id-token: write # Required for authentication using OIDC.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add relevant package name to the environment
+        run: |
+          echo "OUR_PACKAGE_NAME=${GITHUB_REF_NAME%%-*}" >>$GITHUB_ENV
+          echo "OUR_PACKAGE_PATH=${GITHUB_WORKSPACE}/packages/${GITHUB_REF_NAME%%-*}" >>$GITHUB_ENV
+
+      - name: Echo some stuff for a human to see
+        run: |
+          echo "Our package name: $OUR_PACKAGE_NAME"
+          echo "Our package path: $OUR_PACKAGE_PATH"
+
+      - uses: actions/checkout@v3
+        with:
+          ssh-key: ${{secrets.SSH_PRIVATE_KEY}}
+          ref: ${{github.ref}}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.22.2
+
+      - name: Install dependencies
+        working-directory: ${{env.OUR_PACKAGE_PATH}}
+        run: flutter pub get
+
+      - name: Publish
+        working-directory: ${{env.OUR_PACKAGE_PATH}}
+        run: flutter pub publish --force # FIXME: Asks for authentication even though it should have used OIDC.

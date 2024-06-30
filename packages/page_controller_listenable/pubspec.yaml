@@ -1,0 +1,17 @@
+name: page_controller_listenable
+description: A listenable that wraps around the PageController.
+version: 0.0.2
+homepage: https://github.com/volskaya/stasha.flutter/tree/main/packages/page_controller_listenable
+
+environment:
+  sdk: ">=3.2.6 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_hooks: ^0.20.5
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+
+flutter:
