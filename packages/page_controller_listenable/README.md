@@ -1,22 +1,55 @@
-# Await Route
+# Page Controller Listenable
 
-Convenience helper for awaiting route animation to finish.
+A listenable that wraps around the `PageController`.
 
-This allows animating in keyboards, when a page with a form is opened, or deferring expensive animations and other work.
+This listenable extends `ValueListenable<double>` and can be quickly passed into animations, where the type check would fail against the `PageController`.
 
 ## Example
 
 ```dart
 class ExampleWidgetState extends State<ExampleWidget> {
-  var _didHandleInitialDependencies = false;
+  late PageController _pageController;
+  late PageControllerListenable _pageControllerListenable;
 
   @override
-  void didChangeDependencies() {
-    if (_didHandleInitialDependencies) return;
+  void initState() {
+    _pageController = PageController();
+    _pageControllerListenable = PageControllerListenable(_pageController);
+    super.initState();
+  }
 
-    // Focuses first input field and opens the keyboard, after the route has
-    // finished animation.
-    AwaitRoute.of(context).then(() => focusKeyboardOrSomething());
+  @override
+  void dispose() {
+    _pageControllerListenable.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WidgetWithSomeAnimation(
+      animation: _pageControllerListenable,
+      child: ...
+    );
+  }
+}
+```
+
+There's a hook included too.
+
+## Hook example
+
+```dart
+class ExampleWidget extends HookWidget {
+  @override
+  Widget build(BuildContext context) {
+    final pageController = usePageController();
+    final pageControllerListenable = usePageControllerListenable(pageController);
+
+    return WidgetWithSomeAnimation(
+      animation: pageControllerListenable,
+      child: ...
+    );
   }
 }
 ```
