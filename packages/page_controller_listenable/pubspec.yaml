@@ -1,6 +1,6 @@
 name: page_controller_listenable
 description: A listenable that wraps around the PageController.
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/volskaya/stasha.flutter/tree/main/packages/page_controller_listenable
 
 environment:
